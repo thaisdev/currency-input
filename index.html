@@ -20,6 +20,8 @@
 </html>
 <script>
     const maxCharacters = 16;
+    const maxValue = 10000; 
+    const minValue = 100; 
 
     var lastValue = '';
     var el = document.getElementById("currencyInput");
@@ -81,20 +83,28 @@
     }
 
     function clearValue(value) {
-        value = value.replace(/[^0-9]+/g, '');
-        return value ? parseInt(value).toString() : '';
+    value = value.replace(/[^0-9]+/g, '');
+    return value ? parseInt(value).toString() : '';
     }
 
     function removeMask(value) {
-        value = value.replace(/[.]/g, '');
-        value = value.replace(',', '.');
-        return value ? parseFloat(value) : 0;
+    value = value.replace(/[.]/g, '');
+    value = value.replace(',', '.');
+    return value ? parseFloat(value) : 0;
     }
 
     function updateValue(value) {
-        span = document.getElementById("valor");
-        let originalValue = removeMask(value);
-        span.innerHTML = originalValue;
+    spanValue = document.getElementById("value");
+    spanError = document.getElementById("errorMsg");
+    let originalValue = removeMask(value);
+    spanValue.innerHTML = originalValue;
+    spanError.innerHTML = "";
+    if (originalValue > maxValue) {
+        spanError.innerHTML = `O valor não pode ser maior que ${maxValue}`;    
+    }
+    if (originalValue < minValue) {
+        spanError.innerHTML = `O valor não pode ser menor que ${minValue}`;    
+    }
     }
         
 </script>

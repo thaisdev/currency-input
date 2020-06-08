@@ -19,30 +19,43 @@
 </body>
 </html>
 <script>
+    const maxCharacters = 16;
+
     var lastValue = '';
     var el = document.getElementById("currencyInput");
     el.addEventListener('input', onChange);
 
     function onChange (e) {
     const value = e.target.value;
-    let newValue = removeMask(value);
-    if (newValue.length > 11) {
+    let newValue = clearValue(value);
+    if (newValue.length > maxCharacters) {
         e.target.value = lastValue;
         return;
     }
     newValue = getMaskedValue(newValue);
     if (value == '0,0' && newValue == '0,00' && lastValue == '0,00') {
-        lastValue = e.target.value = '';
-        return;
+        newValue = '';
     }
     lastValue = e.target.value = newValue;
+    updateValue(newValue);
     }
 
     function getMaskedValue (original) {
-        return getMillions(original)
-        + getThousands(original)
-        + getHundreds(original)
-        + getCents(original); 
+        return getThousandsSeparators(original) + getCents(original);
+    }
+
+    function getThousandsSeparators(value) {
+    if (value.length > 2) {
+        let separators = [];
+        for (var i = 2; i < value.length; i = i+3) {
+        let thousands = separator(i, i+3, value);
+        separators.push(thousands);
+        }
+        separators.reverse();
+        return `${separators.join('.')},`;
+    }
+    
+    return '0,'
     }
 
     function getCents(value) {
@@ -56,37 +69,32 @@
     return '00';
     }
 
-    function getHundreds(value) {
-    let hundreds = separator(2, 5, value);
-    return hundreds ? `${hundreds},` : '0,';
-    }
-
-    function getThousands(value) {
-    let thousands = separator(5, 8, value);
-    return thousands ? `${thousands}.` : thousands;
-    }
-    
-    function getMillions(value) {
-    let millions = separator(8, 11, value);
-    return millions ? `${millions}.` : millions;
-    }
-
-    function separator(start, end, value) {
-    if (value.length > start) {
-        if (value.length <= end) {
-        return value.slice(0, value.length - start);
-        }
-        if (value.length > end) {
-        return value.slice(value.length - end, value.length - start);
-        }
+    function separator(endPos, startPos, value) {
+    if (value.length > endPos) {
+        let startCutIndex = (value.length > startPos) ? 
+            value.length - startPos : 0;
+        let endCutIndex = value.length - endPos;
+        return value.slice(startCutIndex, endCutIndex);
     }
 
     return '';
     }
 
+    function clearValue(value) {
+        value = value.replace(/[^0-9]+/g, '');
+        return value ? parseInt(value).toString() : '';
+    }
+
     function removeMask(value) {
-    value = value.replace(/[^0-9]+/g, '');
-    return value ? parseInt(value).toString() : '';
+        value = value.replace(/[.]/g, '');
+        value = value.replace(',', '.');
+        return value ? parseFloat(value) : 0;
+    }
+
+    function updateValue(value) {
+        span = document.getElementById("valor");
+        let originalValue = removeMask(value);
+        span.innerHTML = originalValue;
     }
         
 </script>

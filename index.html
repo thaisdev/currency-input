@@ -19,29 +19,23 @@
 </body>
 </html>
 <script>
-    var originalValue = '';
     var lastValue = '';
     var el = document.getElementById("currencyInput");
-    // el.addEventListener("keydown", onChange, false);
-    // el.addEventListener("keyup", onDelete, false);
-    el.addEventListener('input', test);
-    function onChange (event) {
-    let { key } = event;
-    let { value } = event.target;
-    if (key.length == 1) {
-        event.preventDefault();
-    }
-    if (key.match(/[a-z!@#$%^&*(),.?":{}|<>]/) == null) {
-        let maskedValue = value;
-        if (key == 0 && originalValue != '' && originalValue == 0) {
+    el.addEventListener('input', onChange);
+
+    function onChange (e) {
+    const value = e.target.value;
+    let newValue = removeMask(value);
+    if (newValue.length > 11) {
+        e.target.value = lastValue;
         return;
-        } 
-        if (originalValue.length < 11) {
-        originalValue += key;
-        maskedValue = getMaskedValue(originalValue);
-        }
-        event.target.value = maskedValue;
     }
+    newValue = getMaskedValue(newValue);
+    if (value == '0,0' && newValue == '0,00' && lastValue == '0,00') {
+        lastValue = e.target.value = '';
+        return;
+    }
+    lastValue = e.target.value = newValue;
     }
 
     function getMaskedValue (original) {
@@ -93,35 +87,6 @@
     function removeMask(value) {
     value = value.replace(/[^0-9]+/g, '');
     return value ? parseInt(value).toString() : '';
-    }
-
-    function onDelete(event) {
-    let { key } = event;
-    let { value } = event.target;
-    if (key == 'Backspace' || key == 'Delete') {
-        if (value != '' && value != '0' && value != '0,0' & value != '0,00') {
-        originalValue = removeMask(value);      
-        } else {
-        originalValue = '';
-        }
-        let maskedValue = originalValue ? getMaskedValue(originalValue) : '';
-        event.target.value = maskedValue;
-    }
-    }
-
-    function test (e) {
-    const value = e.target.value;
-    let newValue = removeMask(value);
-    if (newValue.length > 11) {
-        e.target.value = lastValue;
-        return;
-    }
-    newValue = getMaskedValue(newValue);
-    if (value == '0,0'&& newValue == '0,00' && lastValue == '0,00') {
-        lastValue = e.target.value = '';
-        return;
-    }
-    lastValue = e.target.value = newValue;
     }
         
 </script>

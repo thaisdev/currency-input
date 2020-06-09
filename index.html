@@ -21,25 +21,44 @@
 <script>
     const maxCharacters = 16;
     const maxValue = 10000; 
-    const minValue = 100; 
+    const minValue = 100;
+    const defaultValue = 500;
 
     var lastValue = '';
     var el = document.getElementById("currencyInput");
-    el.addEventListener('input', onChange);
+    window.onload = setDefaultValue(el);
+    document.getElementById("currencyInput").addEventListener('input', onChange);
+
+    function setDefaultValue(element) {
+        if (defaultValue && defaultValue != 0) {
+            let strValue = defaultValue.toString();
+            let separatorDecimal = strValue.split('.');
+            let value = separatorDecimal[0];
+            if (separatorDecimal.length == 2) {
+            let decimal = separatorDecimal[1];
+            value += decimal.length == 1 ? `${decimal}0` : decimal;
+            } else {
+            value += '00';
+            }
+            let maskedValue = getMaskedValue(value);
+            lastValue = element.value = maskedValue;
+            updateValue(maskedValue);
+        }
+    }
 
     function onChange (e) {
-    const value = e.target.value;
-    let newValue = clearValue(value);
-    if (newValue.length > maxCharacters) {
-        e.target.value = lastValue;
-        return;
-    }
-    newValue = getMaskedValue(newValue);
-    if (value == '0,0' && newValue == '0,00' && lastValue == '0,00') {
-        newValue = '';
-    }
-    lastValue = e.target.value = newValue;
-    updateValue(newValue);
+        const value = e.target.value;
+        let newValue = clearValue(value);
+        if (newValue.length > maxCharacters) {
+            e.target.value = lastValue;
+            return;
+        }
+        newValue = getMaskedValue(newValue);
+        if (value == '0,0' && newValue == '0,00' && lastValue == '0,00') {
+            newValue = '';
+        }
+        lastValue = e.target.value = newValue;
+        updateValue(newValue);
     }
 
     function getMaskedValue (original) {
@@ -47,64 +66,63 @@
     }
 
     function getThousandsSeparators(value) {
-    if (value.length > 2) {
-        let separators = [];
-        for (var i = 2; i < value.length; i = i+3) {
-        let thousands = separator(i, i+3, value);
-        separators.push(thousands);
+        if (value.length > 2) {
+            let separators = [];
+            for (var i = 2; i < value.length; i = i+3) {
+            let thousands = separator(i, i+3, value);
+            separators.push(thousands);
+            }
+            separators.reverse();
+            return `${separators.join('.')},`;
         }
-        separators.reverse();
-        return `${separators.join('.')},`;
-    }
-    
-    return '0,'
+        
+        return '0,'
     }
 
     function getCents(value) {
-    if (value.length == 1) {
-        return `0${value}`;
-    }
-    if (value.length >= 2) {
-        return value.slice(value.length-2, value.length);
-    }
+        if (value.length == 1) {
+            return `0${value}`;
+        }
+        if (value.length >= 2) {
+            return value.slice(value.length-2, value.length);
+        }
 
-    return '00';
+        return '00';
     }
 
     function separator(endPos, startPos, value) {
-    if (value.length > endPos) {
-        let startCutIndex = (value.length > startPos) ? 
-            value.length - startPos : 0;
-        let endCutIndex = value.length - endPos;
-        return value.slice(startCutIndex, endCutIndex);
-    }
+        if (value.length > endPos) {
+            let startCutIndex = (value.length > startPos) ? 
+                value.length - startPos : 0;
+            let endCutIndex = value.length - endPos;
+            return value.slice(startCutIndex, endCutIndex);
+        }
 
-    return '';
+        return '';
     }
 
     function clearValue(value) {
-    value = value.replace(/[^0-9]+/g, '');
-    return value ? parseInt(value).toString() : '';
+        value = value.replace(/[^0-9]+/g, '');
+        return value ? parseInt(value).toString() : '';
     }
 
     function removeMask(value) {
-    value = value.replace(/[.]/g, '');
-    value = value.replace(',', '.');
-    return value ? parseFloat(value) : 0;
+        value = value.replace(/[.]/g, '');
+        value = value.replace(',', '.');
+        return value ? parseFloat(value) : 0;
     }
 
     function updateValue(value) {
-    spanValue = document.getElementById("value");
-    spanError = document.getElementById("errorMsg");
-    let originalValue = removeMask(value);
-    spanValue.innerHTML = originalValue;
-    spanError.innerHTML = "";
-    if (originalValue > maxValue) {
-        spanError.innerHTML = `O valor não pode ser maior que ${maxValue}`;    
-    }
-    if (originalValue < minValue) {
-        spanError.innerHTML = `O valor não pode ser menor que ${minValue}`;    
-    }
-    }
-        
+        spanValue = document.getElementById("value");
+        spanError = document.getElementById("errorMsg");
+        let originalValue = removeMask(value);
+        spanValue.innerHTML = originalValue;
+        spanError.innerHTML = "";
+        if (originalValue > maxValue) {
+            spanError.innerHTML = `O valor não pode ser maior que ${maxValue}`;    
+        }
+        if (originalValue < minValue) {
+            spanError.innerHTML = `O valor não pode ser menor que ${minValue}`;    
+        }
+    }        
 </script>
